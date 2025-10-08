@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+.venv
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# QGIS
+*.qgz~
+*.qgs~
+
+# Large Data Files (don't upload raw data)
+*.tif
+*.tiff
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.kml
+*.kmz
+*.osm
+*.pbf
+data/raw/*
+data/elevation/*
+data/satellite/*
+
+# Keep processed/sample data
+!data/sample/
+!data/processed/*.geojson
+
+# Mac
+.DS_Store
+
+# Outputs
+*.log
+*.png
+*.jpg
+!docs/images/*.png
+
+# Models
+models/*.pkl
+models/*.h5
+*.pickle
+
+# Credentials
+credentials.json
+*.key
+config.py
+EOF
