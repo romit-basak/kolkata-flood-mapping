@@ -1,0 +1,27 @@
+project: "kolkata_ballygunge_test"
+base_dir: "./swmm_test_output"
+bbox: [88.345, 22.520, 88.365, 22.535]
+download_data: true
+
+graph_derivation:
+  method: "slope_based"
+
+subcatchment_derivation:
+  method: "streamorder"
+
+outlet_derivation:
+  method: "separate"
+  threshold_m: 500
+
+pipe_defaults:
+  roughness: 0.015
+  min_slope: 0.0005
+  min_depth: 0.3
+  max_depth: 3.0
+
+elevation:
+  source: "FABDEM"
+
+run_simulation: false
+verbose: true
+save_intermediate: true
