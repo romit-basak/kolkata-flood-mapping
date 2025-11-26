@@ -55,4 +55,9 @@ models/*.h5
 credentials.json
 *.key
 config.py
+
+#LLM context
+generate_context.py
+project_context.txt
+
 EOF

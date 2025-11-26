@@ -1,0 +1,7 @@
+basin_name,area_km2,capacity_cfs,drainage_type,outlet,description
+Town,19.13,1100,pumped_west,hooghly_river,"Central Kolkata, pumped to Hooghly"
+Suburban,25.69,1275,pumped_west,hooghly_river,"Northern areas, pumped drainage"
+Maniktala,8.91,480,gravity_east,wetlands,Eastern gravity drainage
+Topsia-Tangra,5.17,395,gravity_east,vidyadhari,Eastern industrial area
+Tollygunge,36.0,1450,mixed,multiple,Southern mixed drainage
+Bagjola,6.07,600,canal_east,bagjola_canal,Far eastern canal drainage

@@ -1,0 +1,74 @@
+
+CANAL DETECTION ANOMALY ANALYSIS
+Date: November 19, 2025
+
+FINDING: Sentinel-1 SAR (10m resolution) does not detect Kolkata's drainage canals
+
+EVIDENCE:
+- 128 point samples along 52 major canals (Adi Ganga, Circular, Krishnapur, Bagjola, etc.)
+- Mean SAR frequency during dry season: 0.02 (2%)
+- Pixels detected as permanent water (>60% threshold): 0 / 128 (0%)
+- All major canals have SAR frequency <0.37 (well below 0.60 threshold)
+
+WHY SAR MISSES CANALS:
+1. Spatial resolution: Sentinel-1 = 10m, canal width = 5-8m (sub-pixel features)
+2. Mixed pixel effect: 10m pixel contains 50% canal, 50% land → frequency ~0.3
+3. Urban context: Adjacent buildings cause double-bounce scattering
+4. Seasonal variation: Dry season low water levels expose canal bed/vegetation
+5. Linear geometry: Narrow features averaged out in coarser resolution
+
+IMPLICATIONS FOR FLOOD DETECTION:
+
+Scenario: Ward with 5m-wide canal running through it
+
+  Dry season:
+    - Canal has water (permanent) but SAR freq = 0.3 (not detected)
+    - Mask: No permanent water
+
+  Flood day:
+    - Canal: Still there (5m permanent water)
+    - Adjacent land: FLOODED (5m new flooding)
+    - SAR pixel (10m): Sees 100% water (50% canal + 50% flood)
+
+  If we ADD canals to mask:
+    ❌ Pixel flagged as "permanent water"
+    ❌ Flood on adjacent land NOT detected
+    ❌ False negative: Real flooding missed!
+
+  If we use canals as FEATURES:
+    ✅ SAR detects 100% water in pixel
+    ✅ Model sees: high_water=1, canal_density=high
+    ✅ Model learns: "Expected for canal areas, but still flag for review"
+    ✅ Contextual understanding, not binary filtering
+
+DECISION: Use SAR-Only Masks + Canal Features
+
+Permanent Water Masks (for filtering):
+  • Use SAR-detected water only (rivers, ponds, wetlands >10m)
+  • DO NOT add OSM canals to masks
+  • Avoids false negatives near canals
+
+Canal Information (as model features):
+  • canal_density_km_per_km2 (already calculated Week 1)
+  • has_major_canal (binary indicator)
+  • distance_to_canal_m (proximity)
+  • primary_drainage_type (canal/pump/river classification)
+
+Model Learning:
+  • XGBoost/LSTM learn: "Water + high canal_density = lower flood severity"
+  • Provides context without binary masking
+  • More sophisticated than simple filtering
+  • Reduces false alarms in canal-heavy wards
+
+VALIDATION:
+  • Eastern wards (canal-primary): Model will learn canal baseline
+  • Western wards (pump-primary): Model treats water more seriously
+  • Spatial heterogeneity captured through features, not masking
+
+FILES TO USE FOR FLOOD MODEL:
+  ✓ permanent_water_HYBRID_[period].tif - Generated but NOT recommended
+  ✓ water_frequency_s1only_[period].tif - USE THESE (SAR-only)
+  ✓ canal features from: ward_canal_features.csv - USE AS FEATURES
+
+RECOMMENDATION: Delete hybrid masks to avoid confusion
+                Use SAR-only masks + canal features in model

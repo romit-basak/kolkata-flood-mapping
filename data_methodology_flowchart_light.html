@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics-Guided Hybrid ML System - Light Version</title>
+    <style>
+        :root {
+            /* --- LIGHT THEME BASE --- */
+            --bg-color: #f5f7fa;    /* Clean off-white background */
+            --text-color: #333333;  /* Dark charcoal text */
+            --card-bg: #ffffff;     /* Pure white cards */
+            --container-bg: #eaedf2; /* Slightly darker gray for columns */
+            --border-subtle: #dbe2e8;
+
+            /* --- ADAPTED THEME COLORS (Darkened for contrast on white) --- */
+            /* Phase 1: Data (Deep Cerulean) */
+            --col-data: #007ACC;
+            /* Phase 2: Physics (Deep Purple) */
+            --col-phys: #7B2CBF;
+            /* Phase 3: Modeling (Deep Magenta) */
+            --col-model: #D61C6B;
+            /* Phase 4: Outputs (Jade Green) */
+            --col-out: #00B36B;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            /* Dark gradient for light background */
+            background: linear-gradient(90deg, #1a1a1a, #4a4a4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 1200px;
+        }
+
+        /* --- Top Dashboard --- */
+        .dashboard-row {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 1600px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .dash-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .dash-icon { font-size: 1.4rem; }
+        /* Text color now inherits dark color, only icon is colored */
+        .dash-item strong { color: var(--text-color); font-size: 1.2rem; }
+
+        /* --- Main Layout --- */
+        .container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1.4fr 1fr;
+            gap: 25px;
+            width: 100%;
+            max-width: 1600px;
+            align-items: stretch;
+            flex: 1;
+        }
+
+        /* --- Column Basics --- */
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100%;
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 20px;
+            background: var(--container-bg);
+            justify-content: flex-start;
+        }
+
+        .header-box {
+            padding: 15px;
+            text-align: center;
+            border: 2px solid;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background-color: var(--card-bg); /* White header backgrounds */
+            margin-bottom: 10px;
+            flex-shrink: 0;
+            letter-spacing: 1px;
+        }
+
+        .header-box .sub {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: normal;
+            margin-top: 5px;
+            opacity: 0.8;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #555;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            border: 1px solid var(--border-subtle);
+            background: var(--card-bg);
+            padding: 15px 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            /* Subtler shadow for light mode */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            flex-shrink: 0;
+            min-height: 90px;
+        }
+
+        .card strong {
+            display: block;
+            font-size: 0.95rem;
+            /* Removed fixed white color so it inherits dark theme */
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .card small {
+            font-size: 0.8rem;
+            color: #666; /* Slightly lighter gray for secondary text */
+            line-height: 1.4;
+        }
+
+        /* Lists inside cards */
+        ul.card-list {
+            margin: 8px 0 0 0;
+            padding-left: 0;
+            list-style: none;
+            font-size: 0.8rem;
+            color: #555;
+            text-align: center;
+        }
+        ul.card-list li::before {
+            content: "•";
+            color: inherit;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+            opacity: 0.7;
+        }
+        ul.card-list li {
+            margin-bottom: 5px;
+        }
+
+        /* --- SVGs --- */
+        .card-svg {
+            width: 40px;
+            height: 35px;
+            display: block;
+            margin: 0 auto 8px auto;
+            fill: none;
+            stroke: currentColor; /* Inherits the colored div or text */
+            stroke-width: 2;
+        }
+
+        .card-svg.large { width: 60px; height: 50px; }
+        .map-svg { width: 50px; height: 40px; }
+
+        /* --- Structure Helpers --- */
+        .sub-group-container {
+            display: flex;
+            border: 1px solid var(--col-data);
+            border-radius: 8px;
+            overflow: visible;
+            height: auto;
+            background: #f0f8ff; /* Very light blue tint */
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .group-header {
+            background: rgba(0, 122, 204, 0.1); /* Light blue header */
+            color: var(--col-data);
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .card-stack {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .split-stage { display: flex; gap: 15px; flex: 1; }
+        .split-stage .card { flex: 1; }
+
+        /* --- Arrows (Darker for contrast) --- */
+        .column:not(:last-child)::after {
+            content: "➜";
+            position: absolute;
+            right: -28px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            z-index: 1;
+            color: #999; /* Neutral gray arrow */
+        }
+
+        /* --- Validation Box --- */
+        .validation-box {
+            /* Darker dashed border for light background */
+            border: 2px dashed #bbb;
+            background: #f9f9f9;
+            margin-top: 15px;
+            box-shadow: none;
+        }
+
+        /* --- Context Footer --- */
+        .context-footer {
+            margin-top: 50px;
+            max-width: 1000px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+            line-height: 1.6;
+        }
+
+        .context-footer strong { color: var(--col-out); }
+
+        /* --- Theme Colors Overrides for Light Mode --- */
+        /* Phase 1 */
+        .col-1 { border-color: var(--col-data); }
+        .col-1 .header-box { color: var(--col-data); }
+        .col-1 .card { border-top: 3px solid var(--col-data); } /* Top border accent */
+
+        /* Phase 2 */
+        .col-2 { border-color: var(--col-phys); }
+        .col-2 .header-box { color: var(--col-phys); }
+        .col-2 .card { border-top: 3px solid var(--col-phys); }
+
+        /* Phase 3 */
+        .col-3 { border-color: var(--col-model); }
+        .col-3 .header-box { color: var(--col-model); }
+        .col-3 .card { border-top: 3px solid var(--col-model); }
+
+        /* Phase 4 */
+        .col-4 { border-color: var(--col-out); }
+        .col-4 .header-box { color: var(--col-out); }
+        .col-4 .card { border-top: 3px solid var(--col-out); }
+
+        /* Connector SVG */
+        .connector-lines { display: flex; justify-content: center; height: 15px; flex-shrink: 0; margin: 5px 0; }
+        .connector-svg { width: 100%; height: 15px; stroke: var(--col-model); stroke-width: 2; fill: none; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container { grid-template-columns: 1fr 1fr; }
+            .column:nth-child(2)::after { display: none; }
+        }
+
+        @media (max-width: 700px) {
+            .container { grid-template-columns: 1fr; }
+            .column::after { display: none; }
+            .column { margin-bottom: 20px; border-bottom: 2px dashed #bbb; border-top: 0; border-left: 0; border-right: 0; padding-bottom: 30px; border-radius: 0; background: transparent;}
+            .dashboard-row { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Physics-Guided Hybrid Machine Learning for Urban Flood Prediction</h1>
+
+<div class="dashboard-row">
+    <div class="dash-item"><span class="dash-icon" style="color:var(--col-data)">📊</span> <strong>1,989</strong> Unique SAR Dates</div>
+    <div class="dash-item"><span class="dash-icon" style="color:var(--col-phys)">⏱️</span> <strong>2.06-day</strong> Mean Gap</div>
+    <div class="dash-item"><span class="dash-icon" style="color:var(--col-model)">📅</span> <strong>12 Years</strong> (2014-2025)</div>
+    <div class="dash-item"><span class="dash-icon" style="color:var(--col-out)">🏙️</span> <strong>141 Wards</strong> (4.5M People)</div>
+    <div class="dash-item"><span class="dash-icon" style="color:var(--col-out)">✅</span> <strong>565</strong> Verified Dry Obs.</div>
+</div>
+
+<div class="container">
+
+    <div class="column col-1">
+        <div class="header-box">Data Sources<span class="sub">(Phase 1 - Data Acquisition)</span></div>
+
+        <div class="sub-group-container">
+            <div class="group-header">Satellite Sensors (Dynamic)</div>
+            <div class="card-stack">
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <ellipse cx="50" cy="30" rx="40" ry="15" fill="none" stroke-dasharray="4,4"/>
+                            <circle cx="20" cy="25" r="5" fill="currentColor"/>
+                            <circle cx="80" cy="35" r="5" fill="currentColor"/>
+                            <path d="M20,25 L80,35" opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <strong>Sentinel-1 / ALOS-2</strong>
+                    <small>C+L Band Fusion</small>
+                </div>
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <path d="M20,30 Q30,10 50,30 T80,30" fill="none" stroke-width="3"/>
+                            <path d="M30,40 L30,50 M50,40 L50,55 M70,40 L70,50" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <strong>GPM IMERG V07</strong>
+                    <small>Half-hourly Precip.</small>
+                </div>
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <circle cx="50" cy="30" r="15" fill="none" stroke-width="2"/>
+                            <path d="M50,10 L50,5 M50,55 L50,50 M10,30 L5,30 M95,30 L90,30 M22,12 L18,8 M78,52 L82,56 M22,52 L18,56 M78,12 L82,8"/>
+                        </svg>
+                    </div>
+                    <strong>MODIS (Terra/Aqua)</strong>
+                    <small>NDVI/EVI/LST (Pre-flood)</small>
+                </div>
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <path d="M10,40 C30,20 50,60 90,30" fill="none" stroke-width="3"/>
+                            <path d="M10,50 C30,30 50,70 90,40" fill="none" stroke-width="2" opacity="0.6"/>
+                        </svg>
+                    </div>
+                    <strong>SWOT / Tidal Data</strong>
+                    <small>River Stage Levels</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="sub-group-container">
+            <div class="group-header">Static Geo-Data (Foundational)</div>
+            <div class="card-stack">
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <path d="M10,50 L30,20 L50,40 L70,10 L90,50 Z" fill="none" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <strong>FABDEM Elevation</strong>
+                    <small>30m, Bldgs Removed</small>
+                </div>
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <rect x="20" y="40" width="60" height="10" opacity="0.8"/>
+                            <rect x="20" y="25" width="60" height="10" opacity="0.6"/>
+                            <rect x="20" y="10" width="60" height="10" opacity="0.4"/>
+                        </svg>
+                    </div>
+                    <strong>SoilGrids (ISRIC)</strong>
+                    <small>93.3% Silt (Ganges Delta)</small>
+                </div>
+                <div class="card">
+                    <div style="color: var(--col-data)">
+                        <svg class="card-svg" viewBox="0 0 100 60">
+                            <circle cx="50" cy="20" r="8"/>
+                            <path d="M30,50 C30,30 70,30 70,50" fill="none" stroke-width="3"/>
+                        </svg>
+                    </div>
+                    <strong>WorldPop & OSM</strong>
+                    <small>100m Demographics & Infra</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="column col-2">
+        <div class="header-box">Physics-Guided Engineering<span class="sub">(Phase 2 - Feature Extraction)</span></div>
+
+        <div class="card">
+            <div style="color: var(--col-phys)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <path d="M50,10 C30,30 30,50 50,50 C70,50 70,30 50,10" fill="none" stroke-width="2"/>
+                    <path d="M40,35 L60,35" stroke-width="2" opacity="0.5"/>
+                </svg>
+            </div>
+            <strong>Temporal Water Masks</strong>
+            <small>Four 3-year periods<br>to account for infrastructure change<br>(2014-16, 2017-19, 2020-22,
+                2023-25)</small>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-phys)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <rect x="40" y="20" width="20" height="20" fill="none" stroke-width="2"/>
+                    <path d="M30,30 L10,30 M70,30 L90,30 M50,10 L50,5 M50,50 L50,55" stroke-width="2" stroke-dasharray="2,2"/>
+                    <circle cx="50" cy="30" r="25" fill="none" stroke="currentColor" stroke-dasharray="4,4" opacity="0.5"/>
+                </svg>
+            </div>
+            <strong>Spatial Spillover Analysis</strong>
+            <small>Analyzes drainage impacts beyond administrative boundaries</small>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-phys)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <rect x="10" y="30" width="10" height="20" opacity="0.4"/>
+                    <rect x="25" y="10" width="10" height="40" opacity="0.7"/>
+                    <rect x="40" y="25" width="10" height="25" opacity="0.5"/>
+                    <line x1="5" y1="20" x2="95" y2="20" stroke-dasharray="4,2" stroke="currentColor"/>
+                </svg>
+            </div>
+            <strong>Adaptive Otsu Thresholding</strong>
+            <small>Accounts for C-band vs L-band backscatter differences</small>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-phys)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <circle cx="50" cy="30" r="20" fill="none" stroke-width="2"/>
+                    <path d="M50,30 L50,15 M50,30 L65,30"/>
+                    <path d="M10,50 L30,50" marker-end="url(#arrow)"/>
+                </svg>
+            </div>
+            <strong>Multi-Day Lag ID</strong>
+            <small>Precipitation lag validation</small>
+        </div>
+    </div>
+
+    <div class="column col-3">
+        <div class="header-box">Hybrid Ensemble Modeling<span class="sub">(Phase 3 - Architecture)</span></div>
+
+        <div class="card">
+            <div style="color: var(--col-model)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <rect x="40" y="10" width="20" height="15" stroke-width="2"/>
+                    <path d="M50,25 L30,45 M50,25 L70,45"/>
+                    <rect x="20" y="45" width="20" height="10" opacity="0.7"/>
+                    <rect x="60" y="45" width="20" height="10" opacity="0.7"/>
+                </svg>
+            </div>
+            <strong>STAGE 1: Static Susceptibility</strong>
+            <small>(XGBoost - Base)</small>
+        </div>
+
+        <div class="connector-lines">
+            <svg class="connector-svg" viewBox="0 0 100 20" preserveAspectRatio="none">
+                <path d="M50,0 L50,10 L25,10 L25,20 M50,10 L75,10 L75,20"/>
+            </svg>
+        </div>
+
+        <div class="split-stage">
+            <div class="card">
+                <div style="width:100%; text-align:center; color: var(--col-model); margin-bottom:5px;">
+                    <svg class="card-svg large" viewBox="0 0 100 80">
+                        <circle cx="50" cy="10" r="4" fill="currentColor" stroke="none"/>
+                        <path d="M50,10 L25,35 M50,10 L75,35"/>
+                        <circle cx="25" cy="35" r="4" fill="none"/>
+                        <circle cx="75" cy="35" r="4" fill="none"/>
+                        <path d="M25,39 L10,65 M25,39 L40,65 M75,39 L60,65 M75,39 L90,65"/>
+                        <rect x="5" y="65" width="10" height="6" fill="currentColor" stroke="none" opacity="0.5"/>
+                        <rect x="35" y="65" width="10" height="6" fill="currentColor" stroke="none" opacity="0.5"/>
+                        <rect x="55" y="65" width="10" height="6" fill="currentColor" stroke="none" opacity="0.5"/>
+                        <rect x="85" y="65" width="10" height="6" fill="currentColor" stroke="none" opacity="0.5"/>
+                    </svg>
+                    <strong>STAGE 2A: Dynamic Trigger</strong>
+                    <small>(XGBoost)</small>
+                </div>
+                <ul class="card-list">
+                    <li>Multi-day precip lags</li>
+                    <li>SAR water extent anomaly</li>
+                    <li>Tide-river-rain coincidence</li>
+                    <li>~40 temporal features</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div style="width:100%; text-align:center; color: var(--col-model); margin-bottom:5px;">
+                    <svg class="card-svg large" viewBox="0 0 100 80">
+                        <rect x="30" y="20" width="40" height="40" rx="5"/>
+                        <path d="M10,40 L30,40 M70,40 L90,40"/>
+                        <path d="M50,20 C50,-5 85,-5 85,25 C85,35 75,30 70,30" stroke-dasharray="4,2"/>
+                    </svg>
+                    <strong>STAGE 2B: Seq. Learning</strong>
+                </div>
+                <ul class="card-list">
+                    <li>Bidirectional LSTM</li>
+                    <li>Handles irregular sampling</li>
+                    <li>30-day Sequence Window</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="connector-lines">
+            <svg class="connector-svg" viewBox="0 0 100 20" preserveAspectRatio="none">
+                <path d="M25,0 L25,10 L50,10 L50,20 M75,0 L75,10 L50,10"/>
+            </svg>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-model)">
+                <svg class="card-svg large" viewBox="0 0 100 60">
+                    <rect x="20" y="5" width="15" height="15" opacity="0.6"/>
+                    <rect x="42.5" y="5" width="15" height="15" opacity="0.6"/>
+                    <rect x="65" y="5" width="15" height="15" opacity="0.6"/>
+                    <path d="M27,20 L45,40 M50,20 L50,40 M73,20 L55,40"/>
+                    <circle cx="50" cy="50" r="8" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
+            <strong>STAGE 3: Ensemble Fusion</strong>
+            <small>Optimized weights based on validation performance</small>
+        </div>
+
+        <div class="card validation-box">
+            <strong style="color: #777;">Model Validation Strategy</strong>
+            <ul class="card-list" style="text-align: left;">
+                <li>SAR-based ground truth</li>
+                <li>Sep 2025 case study</li>
+                <li>Temporal stratification</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="column col-4">
+        <div class="header-box">Actionable Outputs<span class="sub">(Phase 4 - Impact)</span></div>
+
+        <div class="card">
+            <div style="color: var(--col-out)">
+                <svg class="card-svg map-svg" viewBox="0 0 100 80">
+                    <path d="M20,10 L60,5 L90,30 L80,70 L40,75 L10,50 Z" fill="none" stroke-width="2"/>
+                    <path d="M40,75 L80,70 L70,50 L50,55 Z" fill="currentColor" stroke="none" opacity="0.3"/>
+                    <path d="M40,75 L80,70 L70,50 L50,55 Z" fill="none" stroke-width="1"/>
+                    <circle cx="60" cy="60" r="3" fill="currentColor" stroke="none"/>
+                </svg>
+            </div>
+            <strong style="color:var(--col-out)">Ward-Level Flood Maps</strong>
+            <ul class="card-list">
+                <li>24h / 48h / 72h Horizon</li>
+                <li>Confidence Bounds</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-out)">
+                <svg class="card-svg" viewBox="0 0 100 60">
+                    <rect x="10" y="30" width="15" height="20"/>
+                    <rect x="35" y="20" width="15" height="30"/>
+                    <rect x="60" y="10" width="15" height="40" fill="currentColor" stroke="none" opacity="0.5"/>
+                    <path d="M5,50 L85,50 M5,50 L5,5"/>
+                    <circle cx="85" cy="20" r="5"/>
+                    <path d="M85,28 Q95,40 85,45 Q75,40 85,28"/>
+                </svg>
+            </div>
+            <strong style="color:var(--col-out)">Demographics Affected</strong>
+            <ul class="card-list">
+                <li>Pop. by income quintile</li>
+                <li>Vulnerable groups / Age</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-out)">
+                <svg class="card-svg" viewBox="0 0 100 60">
+                    <rect x="10" y="10" width="20" height="40"/>
+                    <polygon points="40,10 60,10 50,30"/>
+                    <circle cx="80" cy="40" r="10"/>
+                    <path d="M10,50 L90,50" stroke-width="2"/>
+                </svg>
+            </div>
+            <strong style="color:var(--col-out)">Infrastructure Risk</strong>
+            <ul class="card-list">
+                <li>Hospitals, Schools, Utilities</li>
+                <li>Critical facility access</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <div style="color: var(--col-out)">
+                <svg class="card-svg" viewBox="0 0 100 60">
+                    <rect x="30" y="5" width="40" height="50" rx="2" fill="none" stroke-width="2"/>
+                    <line x1="40" y1="15" x2="60" y2="15" stroke-width="2"/>
+                    <line x1="40" y1="25" x2="60" y2="25" stroke-width="2"/>
+                    <line x1="40" y1="35" x2="55" y2="35" stroke-width="2"/>
+                    <rect x="40" y="42" width="20" height="8" fill="currentColor" stroke="none" opacity="0.5"/>
+                    <circle cx="65" cy="45" r="12" fill="var(--card-bg)" stroke="currentColor" stroke-width="2"/>
+                    <line x1="74" y1="54" x2="82" y2="62" stroke-width="3"/>
+                </svg>
+            </div>
+            <strong style="color:var(--col-out)">Policy Evidence & Support</strong>
+            <ul class="card-list">
+                <li>Targeted mitigation insights</li>
+                <li>Regional coordination tools</li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<div class="context-footer">
+    <strong>RESEARCH CONTEXT:</strong> Kolkata experiences ~15-20 flood events annually during monsoon (Jun-Oct),
+    affecting 4.5M residents. Current early warning systems lack ward-level spatial resolution and multi-day advance
+    prediction capability.
+</div>
+
+</body>
+</html>

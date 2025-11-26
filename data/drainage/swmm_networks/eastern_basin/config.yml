@@ -1,0 +1,22 @@
+project: eastern_canal_network
+base_dir: ../data/drainage/swmm_networks/eastern_basin
+bbox:
+- 88.30519618756627
+- 22.45694992487897
+- 88.45895489305467
+- 22.61257250873113
+file_paths:
+  elevation: ../data/elevation/kolkata_fabdem_2021.tif
+  building: download
+  streetcover: download
+real_network:
+  file: ../data/drainage/swmm_networks/eastern_canal_outlets.geojson
+  treatment: fixed
+  role: outlet
+precipitation:
+  design_intensity: 6.0
+  duration: 60
+imperviousness: 0.8
+parameters:
+  manning_n: 0.013
+  min_slope: 0.001

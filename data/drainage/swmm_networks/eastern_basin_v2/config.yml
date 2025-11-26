@@ -1,0 +1,25 @@
+project: kolkata_eastern_canal
+base_dir: ../data/drainage/swmm_networks/eastern_basin_v2
+bbox:
+- 88.32371287485356
+- 22.47047802188633
+- 88.45895489305467
+- 22.56614001813104
+download_data: true
+elevation:
+  source: FABDEM
+graph_derivation:
+  method: slope_based
+subcatchment_derivation:
+  method: streamorder
+outlet_derivation:
+  method: separate
+  threshold_m: 500
+pipe_defaults:
+  roughness: 0.013
+  min_slope: 0.0005
+  min_depth: 0.3
+  max_depth: 3.0
+run_simulation: false
+verbose: true
+save_intermediate: true

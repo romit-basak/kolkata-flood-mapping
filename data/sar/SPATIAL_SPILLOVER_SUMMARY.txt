@@ -1,0 +1,33 @@
+
+SPATIAL SPILLOVER ANALYSIS - SUMMARY
+Date: November 19, 2025
+
+CRITICAL FINDING: Buffer zone lost 4.7x more water than KMC
+
+1. BUFFER ZONE LOSS: 2.69 km² (82% of total)
+   - 2014-2016: 3.58 km²
+   - 2023-2025: 0.90 km²
+   - Decline: 74.9%
+
+2. KMC INTERNAL LOSS: 0.57 km² (18% of total)
+   - 2014-2016: 0.84 km²
+   - 2023-2025: 0.27 km²
+   - Decline: 67.8%
+
+3. SPATIAL FEATURES (for model):
+   - internal_loss_km2: 0.57 km² total
+   - buffer_loss_3km_km2: Mean=0.0266, Max=1.77 km²
+   - neighbor_loss_km2: 0.0000 km² total
+   - total_drainage_exposure: Weighted composite
+
+4. CONCENTRATION:
+   - 4 wards significantly affected
+   - Ward 108 + Ward 58 account for majority
+   - Eastern KMC boundary (near wetlands)
+
+5. HYDROLOGICAL INSIGHT:
+   - Municipal boundaries don't constrain water movement
+   - External drainage loss PRIMARY driver (82%)
+   - Traditional ward-only analysis misses dominant factor
+
+EXPECTED MODEL IMPACT: 15-20% feature importance for buffer_loss_3km_km2
