@@ -60,4 +60,5 @@ config.py
 generate_context.py
 project_context.txt
 
-EOF
+EOF*.csv
+*.geojson
